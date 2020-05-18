@@ -100,6 +100,7 @@ public class ShortcutsServiceTest {
     }
 
     @Test
+    @WithMockCustomerUser(username = "job4j")
     public void whenGetStatisticThanReturnListJSONResponse() {
         URL url = new URL();
         url.setAddress("https://job4j.ru/TrackStudio/task/8993?thisframe=true");
@@ -107,7 +108,13 @@ public class ShortcutsServiceTest {
         List<URL> list = new ArrayList<>();
         list.add(url);
 
-        given(this.urlStore.findAll()).willReturn(list);
+        Site site = new Site();
+        site.setName("job4j");
+        site.setLogin("job4j");
+        site.setPassword("password");
+
+        given(this.siteStore.findByLogin(any(String.class))).willReturn(site);
+        given(this.urlStore.findBySite_Name(any(String.class))).willReturn(list);
 
         List<JSONResponseStatistic> result = this.service.getStatistic();
 

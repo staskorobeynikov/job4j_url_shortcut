@@ -85,9 +85,7 @@ public class ShortcutsService implements ServiceInterface<Site, URL> {
         URL url = urlStore.findByCode(code);
         if (url != null) {
             result = url.getAddress();
-            int updateCount = url.getCount() + 1;
-            url.setCount(updateCount);
-            urlStore.save(url);
+            urlStore.changeCount(code);
         }
         LOG.info("You are redirect by link: {}", result);
 
@@ -97,11 +95,16 @@ public class ShortcutsService implements ServiceInterface<Site, URL> {
     @Override
     @Transactional
     public List<JSONResponseStatistic> getStatistic() {
+        int totalVisitSite = 0;
+
         List<JSONResponseStatistic> result = new ArrayList<>();
-        List<URL> urls = (List<URL>) urlStore.findAll();
+        String siteName = this.getSite().getName();
+        List<URL> urls = urlStore.findBySite_Name(siteName);
         for (URL url : urls) {
             result.add(new JSONResponseStatistic(url.getAddress(), url.getCount()));
+            totalVisitSite += url.getCount();
         }
+        result.add(0, new JSONResponseStatistic(siteName, totalVisitSite));
         return result;
     }
 
